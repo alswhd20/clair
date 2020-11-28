@@ -8,7 +8,6 @@ services:
     environment:
       POSTGRES_PASSWORD: password
     networks:
-      - registry
       - clair
     volumes:
       - C:\project\clair\postgresql:/var/lib/postgresql/data:rw
@@ -22,7 +21,6 @@ services:
     ports:
       - "6060-6061:6060-6061"
     networks:
-      registry:
       clair:
         aliases:
           - clair.example.local
