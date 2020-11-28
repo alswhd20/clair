@@ -1,0 +1,45 @@
+version: "3.3"
+
+services:
+  clair-db:
+    container_name: postgres
+    image: postgres:latest
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: password
+    networks:
+      - registry
+      - clair
+    volumes:
+      - C:\project\clair\postgresql:/var/lib/postgresql/data:rw
+
+  clair:
+    container_name: clair
+    image: quay.io/coreos/clair:latest
+    restart: unless-stopped
+    depends_on:
+      - clair-db
+    ports:
+      - "6060-6061:6060-6061"
+    networks:
+      registry:
+      clair:
+        aliases:
+          - clair.example.local
+    links:
+      - clair-db
+    volumes:
+      - C:\project\clair\clair_data:/tmp
+      - ./files/config/clair-config.yaml:/config/config.yaml
+    command: [-config, /config/config.yaml, -insecure-tls]
+
+  clair-scanner:
+    container_name: clair-scanner
+    image: wdijkerman/clair-scanner
+    networks:
+      - clair
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./example-whitelist.yaml:/tmp/whitelist.yaml
+    user: root
+    entrypoint: /bin/entrypoint.sh -w /tmp/whitelist.yaml --clair="https://clair.example.local:6060"
