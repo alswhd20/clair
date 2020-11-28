@@ -41,3 +41,7 @@ services:
       - ./example-whitelist.yaml:/tmp/whitelist.yaml
     user: root
     entrypoint: /bin/entrypoint.sh -w /tmp/whitelist.yaml --clair="https://clair.example.local:6060"
+    
+networks:
+  clair:
+    external: false
